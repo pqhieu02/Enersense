@@ -12,3 +12,10 @@ Base = declarative_base()
 db = create_engine(MYSQL_URL)
 Session = sessionmaker(autocommit=False, bind=db)
 Base.metadata.create_all(bind=db)
+
+def get_db():
+    db = Session()
+    try:
+        yield db
+    finally:
+        db.close()

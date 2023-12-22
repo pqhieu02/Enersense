@@ -2,7 +2,9 @@
 import os
 import logging
 import random
+import sys
 import time
+import signal
 from dotenv import load_dotenv
 from lib.mqtt_client import MqttClient
 from lib.helper import get_default_logging_handler
@@ -18,7 +20,20 @@ logger.addHandler(get_default_logging_handler())
 
 logger.info('MQTT app version 1.0')
 
+def graceful_shutdown(signum, frame):
+    logger.info('Received signal for graceful shutdown. Disconnecting MQTT clients...')
+
+    for client in MqttClient.clients:
+        client.disconnect() 
+        
+    logger.info('Exiting.')
+    sys.exit(0)
+
 def main():
+    # Set up signal handler for graceful shutdown
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+
     # Publisher
     publisher = MqttClient(BROKER_ADDRESS)
     publisher.connect_and_wait()

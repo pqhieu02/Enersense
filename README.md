@@ -1,14 +1,14 @@
 # Simple MQTT application
 
 ## Overview
-The purpose of this project is to desmotrate a simple example of utilizing the MQTT technologies, python third-parties: FastAPI, paho-mqtt, etc.
+The purpose of this project is to demonstrate a simple example of utilizing the MQTT technologies, python third parties library: FastAPI, paho-mqtt, etc.
 
 ## Component
 
 This application comprises four core components: MQTT service, REST service, MySQL database and MQTT broker Mosquitto. 
 
 #### MQTT service: 
-- Take responsibility in creating a publisher to publish a message to the broker periodcally, and a subscriber to listen and persist received message. 
+- Take responsibility for creating a publisher to publish a message to the broker periodically, and a subscriber to listen and persist received messages. 
 - The source code can be found in `/mqtt`
 #### REST service: 
 - A simple backend server managing migrations of the database, and exposing API to fetch the data in the MySQL database. 
@@ -27,7 +27,7 @@ docker compose up -d
 ```bash
 docker compose exec mysql bash
 ```
-User name and password for MySQL Server are both `root`
+The username and password for MySQL Server are both `root`
 
 ## Monitor log
 ```bash

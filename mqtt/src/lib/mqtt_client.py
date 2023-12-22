@@ -8,6 +8,8 @@ from service.charging_session_service import create_charging_session
 
 
 class MqttClient:
+    clients = []
+
     def __init__(self,
                  broker_address: str,
                  port: int = 1883,
@@ -19,7 +21,8 @@ class MqttClient:
 
         self._broker_address = broker_address
         self._port = port
-        self._subscribed_topics = []
+        self._publishing_message = {}
+        self.clients.append(self)
 
         self._logger = logging.getLogger(f'MqttClient-{self._id}')
 
@@ -43,8 +46,26 @@ class MqttClient:
         return self._client.subscribe(topic, qos)
 
     def publish(self, topic, qos, payload):
-        return self._client.publish(topic, payload=payload, qos=qos)
+        message_info = self._client.publish(topic, payload=payload, qos=qos)
+        self._publishing_message[message_info.mid] = message_info
 
+    def disconnect(self):
+        # When disconnecting, the library will not wait for
+        # the unpublished messages. This is to avoid message lost 
+        # when user attempt to shutdown gracefully
+        for mid in self._publishing_message:
+            message_info = self._publishing_message[mid]
+            if not message_info.is_published():
+                try:
+                    message_info.wait_for_publish(2)
+                    if not message_info.is_published(): raise Exception('timeout')
+                except Exception as e:
+                    self._logger.info(f'Failed to publish message, abort to disconnect. Reason: {e}')
+        
+        self._client.loop_stop()
+        self._client.disconnect()
+                    
+    
     def is_connected(self):
         return self._client.is_connected()
 
@@ -61,4 +82,6 @@ class MqttClient:
         data = json.loads(payload.replace("'", '"'))
         create_charging_session(data)
 
+    def _on_publish(self, client, userdata, mid):
+        self._publishing_message.pop(mid, None)
         

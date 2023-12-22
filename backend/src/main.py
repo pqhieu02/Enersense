@@ -5,9 +5,7 @@ from src.config.datasource import db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # On start up event
-    print("Hey")
     yield 
-    print("Hi")
     # On shutdown event
     db.dispose()
 

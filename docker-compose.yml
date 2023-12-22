@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    build: ./backend
     environment:
       - MYSQL_URL=mysql://root:root@mysql:3306/mqtt
     ports:
@@ -8,6 +8,17 @@ services:
     depends_on: 
       mysql:
         condition: service_healthy
+  mqtt: 
+    build: ./mqtt
+    environment:
+      - MYSQL_URL=mysql://root:root@mysql:3306/mqtt
+      - BROKER_ADDRESS=mosquitto
+    depends_on: 
+      mysql:
+        condition: service_healthy
+      mosquitto: 
+        condition: service_healthy
+
   mysql: 
     image: mysql:latest
     environment:
@@ -17,6 +28,20 @@ services:
       - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 10s
+  mosquitto: 
+    image: eclipse-mosquitto
+    volumes:
+      - "./mosquitto-data:/mosquitto"
+    command: "mosquitto -c /mosquitto-no-auth.conf"
+    ports:
+      - "1883:1883"
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-i", "healthcheck", "-W", "3"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

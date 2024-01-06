@@ -1,12 +1,12 @@
 import logging
-from config.datasource import Session
+from config.datasource import db_session
 from entity.charging_session import ChargingSession
 
 logger = logging.getLogger(__name__)
 
-def create_charging_session(data):
+async def create_charging_session(data):
     logger.info(f'Request to create new charging session: {data}')
-    with Session.begin() as session:
+    async with db_session().begin() as session:
         new_charging_session = ChargingSession(**data)
         session.add(new_charging_session)
-        session.commit()
+        await session.commit()

@@ -1,4 +1,5 @@
 
+import asyncio
 import os
 import logging
 import random
@@ -29,7 +30,7 @@ def graceful_shutdown(signum, frame):
     logger.info('Exiting.')
     sys.exit(0)
 
-def main():
+async def main():
     # Set up signal handler for graceful shutdown
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
@@ -58,4 +59,4 @@ def main():
         time.sleep(3)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())

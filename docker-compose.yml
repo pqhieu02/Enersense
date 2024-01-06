@@ -3,6 +3,7 @@ services:
     build: ./backend
     environment:
       - MYSQL_URL=mysql://root:root@mysql:3306/mqtt
+      - MYSQL_URL_ASYNC=mysql+asyncmy://root:root@mysql:3306/mqtt
     ports:
       - "8000:8000"
     depends_on: 
@@ -12,6 +13,7 @@ services:
     build: ./mqtt
     environment:
       - MYSQL_URL=mysql://root:root@mysql:3306/mqtt
+      - MYSQL_URL_ASYNC=mysql+asyncmy://root:root@mysql:3306/mqtt
       - BROKER_ADDRESS=mosquitto
     depends_on: 
       mysql:

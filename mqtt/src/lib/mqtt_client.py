@@ -1,3 +1,4 @@
+import asyncio
 import time
 import uuid
 import json
@@ -80,6 +81,13 @@ class MqttClient:
             f'Message on topic {msg.topic}: {payload}'
         )
         data = json.loads(payload.replace("'", '"'))
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(create_charging_session(data))
+
+        loop.close()
         create_charging_session(data)
 
     def _on_publish(self, client, userdata, mid):
